@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from app.monitoring import get_system_info
 
 app = FastAPI(
     title = "Home Lab DashBoard",
@@ -17,3 +18,7 @@ def health_check():
     return{
         "status": "online"
     }
+
+@app.get("/system")
+def system_info():
+    return get_system_info()
