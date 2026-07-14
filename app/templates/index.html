@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Lab Dashboard</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<h1>Home Lab Dashboard</h1>
+
+<div class="container">
+
+    <div class = "card">
+        <h2>CPU Usage</h2>
+        <p id = "cpu">Loading...</p>
+    </div>
+
+    <div class = "card">
+        <h2>Memory Usage</h2>
+        <p id = "memory">Loading...</p>
+    </div>
+
+    <div class = "card">
+        <h2>Disk Usage</h2>
+        <p id = "disk">Loading...</p>
+    </div>
+
+    <div class = "card">
+        <h2>Network Devices</h2>
+        <div id = "network">
+            Loading...
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+async function loadSystemInfo(){
+
+    const response = await fetch("/system");
+
+    const data = await response.json();
+
+    document.getElementById("cpu").innerHTML = data.cpu_usage + "%";
+
+    document.getElementById("memory").innerHTML = data.memory_usage + "%";
+
+    document.getElementById("disk").innerHTML = data.disk_usage + "%";
+}
+
+async function loadNetworkInfo(){
+
+    const response = await fetch("/network");
+
+    const devices = await response.json();
+
+    let html = "";
+
+    devices.forEach(device => {
+
+        let status;
+
+        if(device.status === "online"){
+            status = "🟢 Online";
+        }
+        else{
+            status = "🔴 Offline";
+        }
+
+        html += `
+            <p>
+                <strong>${device.name}</strong>
+                (${device.ip})
+                <br>
+                ${status}
+                ${device.response_time ?
+                "- " + device.response_time + " ms"
+                : ""}
+            </p>
+        `;
+    });
+    document.getElementById("network").innerHTML = html;
+}
+
+loadSystemInfo();
+loadNetworkInfo();
+
+setInterval(loadSystemInfo, 5000);
+setInterval(loadNetworkInfo, 5000);
+
+</script>
+
+</body>
+</html>
