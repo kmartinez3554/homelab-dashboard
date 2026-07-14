@@ -36,6 +36,12 @@
 
 </div>
 
+<h2>Network Latency History</h2>
+
+<canvas id="pingChart"></canvas>
+
+<script src = "https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 
 async function loadSystemInfo(){
@@ -85,8 +91,59 @@ async function loadNetworkInfo(){
     document.getElementById("network").innerHTML = html;
 }
 
+async function loadPingChart(){
+
+    const response = await fetch("/network/history/1");
+
+    const data = await response.json();
+
+    const labels = data.map(
+        item => item.timestamp
+    );
+
+    const pingValues = data.map(
+        item => item.response_time
+    );
+
+    new Chart(
+        document.getElementById("pingChart"),
+        {
+            type: "line",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [
+                    {
+                        label: "Response Time (ms)",
+
+                        data: pingValues,
+
+                        borderWidth: 2
+                    }
+                ]
+            },
+
+            options: {
+
+                responsive: true,
+
+                scales:{
+
+                    y:{
+                        beginAtZero: true
+                    }
+                }
+            }
+        }
+    );
+}
+
+
 loadSystemInfo();
 loadNetworkInfo();
+loadPingChart();
 
 setInterval(loadSystemInfo, 5000);
 setInterval(loadNetworkInfo, 5000);

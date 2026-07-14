@@ -13,7 +13,8 @@ from app.repositories.network_repository import(
     get_average_response_time,
     get_total_checks,
     get_failed_checks,
-    calculate_uptime
+    calculate_uptime,
+    get_ping_history
 )
 
 router = APIRouter()
@@ -69,3 +70,22 @@ def network_stats(
         })
 
     return stats
+
+@router.get("/network/history/{device_id}")
+def network_history(
+    device_id: int,
+    db: Session = Depends(get_db)
+):
+    history = get_ping_history(
+        db,
+        device_id
+    )
+
+    return[
+        {
+            "timestamp": item.timestamp,
+            "response_time": item.response_time,
+            "status": item.status
+        }
+        for item in history
+    ]

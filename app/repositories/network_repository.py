@@ -74,3 +74,17 @@ def calculate_uptime(db: Session, device_id: int):
     failed = get_failed_checks(db, device_id)
 
     return round(((total - failed) / total) * 100, 2)
+
+def get_ping_history(db: Session, device_id: int, limit: int = 50):
+
+    return(
+        db.query(PingHistory)
+        .filter(
+            PingHistory.device_id == device_id
+        )
+        .order_by(
+            PingHistory.timestamp.desc()
+        )
+        .limit(limit)
+        .all()
+    )
